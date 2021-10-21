@@ -3,7 +3,6 @@ from vectorSupport import pcaVector
 from matplotlib.figure import Figure
 import SimpleITK as sitk
 import os
-import circle
 from PyQt5 import QtWidgets, uic, QtCore,QtGui
 from PyQt5.QtWidgets import QFileDialog,QMessageBox
 import matplotlib as plt
@@ -11,6 +10,8 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import numpy as np
 from Contours import ContorProduce
 UI_PATH = 'view.ui'
+if not os.path.exists('data'):
+    os.mkdir('data')
 SAVE_PATH = 'data/sliced.npy'
 StyleSheet = '''
         *{
