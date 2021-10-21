@@ -1,6 +1,6 @@
 # ImageAnalysisSupporter
 
-This is Image analysis supporter.
+This is Image analysis supporter and free Project.
 
 You can calculate angle of every spots.
 
