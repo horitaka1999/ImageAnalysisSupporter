@@ -52,7 +52,7 @@ class Application(QtWidgets.QMainWindow):
         self.initContorFigure()
         
     def Setting(self):
-        self.Loaded = False
+        self.anno = False
         self.setStyleSheet(StyleSheet)
         self.Loaded = False
         self.kParameterWidget.setValidator(QtGui.QIntValidator())
@@ -136,9 +136,9 @@ class Application(QtWidgets.QMainWindow):
         NII_Data = loadNII(FILEPATH)
         if len(NII_Data) > 0:
             self.NiiLength = len(NII_Data) 
+            np.save(SAVE_PATH,NII_Data)
             for index in range(self.NiiLength):
                 self.NiiList.addItem(str(index))
-            np.save(SAVE_PATH,NII_Data)
         else:
             dlg = QMessageBox(self)
             dlg.setWindowTitle('error')
@@ -160,7 +160,6 @@ class Application(QtWidgets.QMainWindow):
         self.updateFigure()
         
     def showContor(self,index):#indexがstr型でくる
-        self.Loaded = True
         self.contor_axes.cla()#前のplotデータの削除
         if index == '':
             return
@@ -169,6 +168,7 @@ class Application(QtWidgets.QMainWindow):
         X = self.ContorBox[:,0]
         Y = self.ContorBox[:,1]
         self.anno = self.contor_axes.scatter(X,Y,c='blue',s=10)
+        self.Loaded = True
         self.contor_axes.axis('off')
         self.pca = pcaVector(self.ContorBox)#Contor表示時にpcaを計算,defaultで５つの近傍
         self.pca.saveData()
@@ -194,7 +194,7 @@ class Application(QtWidgets.QMainWindow):
     def mouse_move(self,event):#ContorFigure Clicked Event
         x = event.xdata
         y = event.ydata
-        if event.inaxes != self.contor_axes and not self.Loaded:
+        if event.inaxes != self.contor_axes or  self.anno == False:
             return
         cont,rev = self.anno.contains(event)
         if not cont:
