@@ -31,10 +31,16 @@ StyleSheet = '''
         }
         QLineEdit:hover{
         }
-        
+        QPushButton{
+            background-color: rgba(0,0,0,0.5);
+            border-color: white;
+            color :white;
+        }        
         '''
+
 def loadNII(file_path): #return numpy array
-    if os.path.splitext(file_path)[1] != '.nii':
+    tmp = os.path.splitext(file_path)
+    if not(tmp[1] == '.nii' or tmp[1]== '.gz'):
        return np.array([]) 
     image = sitk.ReadImage(file_path)
     ndrev = sitk.GetArrayFromImage(image)
@@ -85,7 +91,7 @@ class Application(QtWidgets.QMainWindow):
 
         self.FileNameText = QtWidgets.QLabel(self)
         self.FileNameText.setText('your selected file path')
-        self.FileNameText.setGeometry(100,10,300,30)
+        self.FileNameText.setGeometry(110,10,300,30)
         
         self.Output = QtWidgets.QLabel(self)
         self.Output.setText('Output')
@@ -146,6 +152,8 @@ class Application(QtWidgets.QMainWindow):
             dlg.exec()
 
     def showNii(self,index):#indexがstr型でくる
+        self.axes.cla()
+        self.axes.axis('off')
         self.ContorList.clear()
         if index == '':
             return
@@ -155,8 +163,14 @@ class Application(QtWidgets.QMainWindow):
         for i in range(len(self.ContorData.contours)):
             self.ContorList.addItem(str(i))
         tmp = self.NII_IMAGE
-        tmp *= 255
-        self.axes.imshow(tmp,cmap='gray')
+        X = []
+        Y = []
+        for h in range(self.NII_IMAGE.shape[1]):
+            for w in range(self.NII_IMAGE.shape[0]):
+                if self.NII_IMAGE[h][w] >= 1:
+                    X.append(w)
+                    Y.append(h)
+        self.axes.scatter(X,Y,c = 'black')
         self.updateFigure()
         
     def showContor(self,index):#indexがstr型でくる
@@ -168,7 +182,6 @@ class Application(QtWidgets.QMainWindow):
         X = self.ContorBox[:,0]
         Y = self.ContorBox[:,1]
         self.anno = self.contor_axes.scatter(X,Y,c='blue',s=10)
-        self.Loaded = True
         self.contor_axes.axis('off')
         self.pca = pcaVector(self.ContorBox)#Contor表示時にpcaを計算,defaultで５つの近傍
         self.pca.saveData()
