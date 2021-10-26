@@ -114,6 +114,7 @@ class Application(QtWidgets.QMainWindow):
         self.ContorFigureCanvas.mpl_connect('motion_notify_event',self.mouse_move)
         self.ContorFigureLayout.addWidget(self.ContorFigureCanvas)
         self.contor_axes = self.ContorFigure.add_subplot(1,1,1)
+        self.contor_axes.set_aspect('equal')
         self.contor_axes.axis('off')
     
     def initFigure(self):
@@ -163,14 +164,7 @@ class Application(QtWidgets.QMainWindow):
         for i in range(len(self.ContorData.contours)):
             self.ContorList.addItem(str(i))
         tmp = self.NII_IMAGE
-        X = []
-        Y = []
-        for h in range(self.NII_IMAGE.shape[1]):
-            for w in range(self.NII_IMAGE.shape[0]):
-                if self.NII_IMAGE[h][w] >= 1:
-                    X.append(w)
-                    Y.append(h)
-        self.axes.scatter(X,Y,c = 'black')
+        self.axes.imshow(self.NII_IMAGE)
         self.updateFigure()
         
     def showContor(self,index):#indexがstr型でくる
