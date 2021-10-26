@@ -3,8 +3,9 @@ from vectorSupport import pcaVector
 from matplotlib.figure import Figure
 import SimpleITK as sitk
 import os
+from PyQt5.QtCore import Qt
 from PyQt5 import QtWidgets, uic, QtCore,QtGui
-from PyQt5.QtWidgets import QFileDialog,QMessageBox
+from PyQt5.QtWidgets import QFileDialog,QMessageBox,QSlider
 import matplotlib as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import numpy as np
@@ -35,7 +36,20 @@ StyleSheet = '''
             background-color: rgba(0,0,0,0.5);
             border-color: white;
             color :white;
-        }        
+        }
+        QPushButton:hover{
+            padding-top: 10px;
+            padding-bottom: 5px;
+        }
+        QComboBox{
+            background-color: rgba(0,0,0,0.1);
+            color :black;
+        }
+        QSlider{
+            background-color: rgba(0,0,0,0.5);
+
+        }
+                
         '''
 
 def loadNII(file_path): #return numpy array
@@ -81,13 +95,13 @@ class Application(QtWidgets.QMainWindow):
         self.ContorFigureLayout.setContentsMargins(0,0,0,0)
 
         self.ContorList = QtWidgets.QComboBox(self)
-        self.ContorList.setGeometry(750,10,20,20)
+        self.ContorList.setGeometry(750,10,50,20)
 
         self.FileBrowser = QtWidgets.QPushButton('select file',self)
         self.FileBrowser.move(0,10)
 
         self.NiiList =QtWidgets.QComboBox(self) 
-        self.NiiList.setGeometry(600,10,20,20)
+        self.NiiList.setGeometry(550,10,50,20)
 
         self.FileNameText = QtWidgets.QLabel(self)
         self.FileNameText.setText('your selected file path')
@@ -95,7 +109,7 @@ class Application(QtWidgets.QMainWindow):
         
         self.Output = QtWidgets.QLabel(self)
         self.Output.setText('Output')
-        self.Output.setGeometry(800,10,100,30)
+        self.Output.setGeometry(820,10,100,30)
         
         self.VectorOutput = QtWidgets.QLabel(self)
         self.VectorOutput.setText('current pca vactor')
@@ -107,6 +121,20 @@ class Application(QtWidgets.QMainWindow):
 
         self.kParameterWidget = QtWidgets.QLineEdit(self)
         self.kParameterWidget.setGeometry(1350,10,30,30)
+
+    def initSlider(self,vmax):
+        self.sld = QtWidgets.QSlider(Qt.Vertical,self)
+        self.sld.setMinimum(0)
+        self.sld.setMaximum(vmax)
+        self.sld.setFocusPolicy(Qt.NoFocus)
+        self.sld.setGeometry(650,50,20,600)
+        self.sld.setValue(0)
+        self.sld.setSingleStep(1)
+        self.sld.valueChanged.connect(self.valueChange)
+        self.sld.show()
+
+    def valueChange(self):
+        self.showNii(str(self.sld.value()))
 
     def initContorFigure(self):
         self.ContorFigure = plt.figure.Figure()
@@ -133,7 +161,7 @@ class Application(QtWidgets.QMainWindow):
     def updateContorFigure(self):
         self.ContorFigureCanvas.draw()
 
-    def showDIALOG(self): 
+    def showDIALOG(self):
         self.NiiList.clear()
         self.NiiLength = 0
         # 第二引数はダイアログのタイトル、第三引数は表示するパス
@@ -146,6 +174,7 @@ class Application(QtWidgets.QMainWindow):
             np.save(SAVE_PATH,NII_Data)
             for index in range(self.NiiLength):
                 self.NiiList.addItem(str(index))
+            self.initSlider(self.NiiLength-1)
         else:
             dlg = QMessageBox(self)
             dlg.setWindowTitle('error')
